@@ -13,8 +13,9 @@
   <h1>Headmaster Homepage!</h1>
   <main>{{{cohortsListHTML}}}</main>
 
-  <form action="/cohorts" method="post">
-    <label>Cohort title:</label>
+
+  <form  action="/cohorts" method="post">
+    <label>Cohort Title:</label>
     <input type="text" name="title" />
 
     <label>Slug:</label>
@@ -22,6 +23,20 @@
 
     <button type="submit">Add Cohort</button>
   </form>
+  <form  action="/students" method="get" onSubmit="return searchById()">
+
+    <label>Student ID:</label>
+    <input id="studentId" type="text" name="ID" />
+
+    <button type="submit">Search by Student ID</button>
+  </form>
+  <script>
+    function searchById(){
+      let id = document.getElementById('studentId').value;
+      location.href = 'students/' + id;
+      return false
+    }
+  </script>
 </body>
 
 </html>

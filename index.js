@@ -23,6 +23,13 @@ app.get('/', function (req, res) {
     })
 })
 
+// app.get('/', function (req, res) {
+//   getAllStudents()
+//     .then(function (allStudents) {
+//       res.send(mustache.render(homepageTemplate, { studentListHTML: renderAllStudents(allStudents) }))
+//     })
+// })
+
 app.post('/cohorts', function (req, res) {
   createCohort(req.body)
     .then(function () {
@@ -32,6 +39,16 @@ app.post('/cohorts', function (req, res) {
       res.status(500).send('something went wrong. waaah, waaah')
     })
 })
+
+// app.post('/students', function (req, res) {
+//   createStudent(req.body)
+//     .then(function () {
+//       res.send('hopefully we created your student <a href="/">go home</a>')
+//     })
+//     .catch(function () {
+//       res.status(500).send('something went wrong. waaah, waaah')
+//     })
+// })
 
 app.get('/cohorts/:slug', function (req, res) {
   // console.log(res, "____________", req)
@@ -45,9 +62,12 @@ app.get('/cohorts/:slug', function (req, res) {
     })
 })
 
+
 app.get('/students/:id', function (req, res) {
   // console.log(res.name)
-  getStudents(req.params.id)
+  // console.log(document.getElementById('studentId').value)
+  console.log(req.params.id)
+  getStudent(req.params.id)
     .then(function (student) {
       console.log(student)
       // res.send('<pre>' + prettyPrintJSON(cohort) + '</pre>')
@@ -68,6 +88,16 @@ app.listen(port, function () {
 function renderCohort (cohort) {
   return `<li><a href="/cohorts/${cohort.slug}">${cohort.title}</a></li>`
 }
+
+function renderStudent (students) {
+  return `<li><a href="/students/${students.id}">${student.name}</a></li>`
+}
+
+function renderAllStudents(allStudents){
+  return '<ul>' + allStudents.map(renderStudent).join('') + '</ul>'
+}
+
+
 
 function renderAllCohorts (allCohorts) {
   return '<ul>' + allCohorts.map(renderCohort).join('') + '</ul>'
@@ -96,7 +126,11 @@ function getOneCohort (slug) {
     })
 }
 
-function getStudents (id) {
+function getAllStudents () {
+  return db.raw('SELECT * FROM Students')
+}
+
+function getStudent (id) {
   return db.raw('SELECT * FROM Students WHERE id = ?', [id])
     // .then(function (results) {
     //   if (results.length !== 1) {
@@ -109,6 +143,10 @@ function getStudents (id) {
 
 function createCohort (cohort) {
   return db.raw('INSERT INTO Cohorts (title, slug, isActive) VALUES (?, ?, true)', [cohort.title, cohort.slug])
+}
+
+function createStudent (cohort) {
+  return db.raw('INSERT INTO Students (name, id, isActive) VALUES (?, ?, true)', [cohort.title, cohort.slug])
 }
 
 // -----------------------------------------------------------------------------
