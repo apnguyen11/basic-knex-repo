@@ -183,3 +183,29 @@ function createStudent (cohort) {
 function prettyPrintJSON (x) {
   return JSON.stringify(x, null, 2)
 }
+
+// FACBOOK AUTH
+
+const FacebookStrategy = require('passport-facebook').Strategy;
+
+const FACEBOOK_APP_ID = '246507429625748';
+const FACEBOOK_APP_SECRET = '228771890a1f88f85a66b446bd6b1121';
+
+passport.use(new FacebookStrategy({
+  clientID: FACEBOOK_APP_ID,
+  clientSecret: FACEBOOK_APP_SECRET,
+  callbackURL: "/auth/facebook/callback"
+},
+  function(accessToken, refreshToken, profile, cb){
+    return cb(null, profile);
+  }
+));
+
+app.get('/auth/facebook',
+  passport.authenticate('facebook'));
+
+  app.get('/auth/facebook/callback',
+    passport.authenticate('facebook', { failureRedirect: '/error'}),
+    function(req, res){
+      res.redirect('/sucess');
+    });
