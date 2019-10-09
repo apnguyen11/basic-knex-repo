@@ -1,32 +1,45 @@
 const fs = require('fs')
 const mustache = require('mustache')
-const cors = require('cors')
 const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
-
+const passport = require('passport');
 // const log = require('/.src/logging.js')
 
 const dbConfigs = require('./knexfile.js')
 const db = require('knex')(dbConfigs.development)
-const session = require('express-session')
-const port = 3000
+
+const port = 3000 || process.env.PORT;
 
 // -----------------------------------------------------------------------------
 // Express.js Endpoints
 
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.get('/success', (req, res) => res.send("You have successfully logged in"));
+app.get('/error', (req, res) => res.send('error logging in'));
+
+passport.serializeUser(function(user, cb){
+  cb(null, user);
+});
+
+passport.deserializeUser(function(obj, cb){
+  cb(null, obj);
+});
+
+
+
 const homepageTemplate = fs.readFileSync('./templates/homepage.mustache', 'utf8')
-const login = fs.readFileSync('./templates/login.mustache', 'utf8')
+// const login = fs.readFileSync('./templates/login.mustache', 'utf8')
 
 app.use(express.urlencoded())
-app.use(bodyParser.urlencoded({extended: false}));
 
-app.use(session({ ... }))
+app.get('/', (req, res) => res.sendFile('auth.html', {root: __dirname}));
 
-app.get('/', function (req, res) {
 
-      res.send(mustache.render(login))
-});
+
+
 
 app.get('/cohorts', function (req, res) {
   getAllCohorts()
