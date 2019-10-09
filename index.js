@@ -1,26 +1,41 @@
 const fs = require('fs')
 const mustache = require('mustache')
-
+const cors = require('cors')
 const express = require('express')
 const app = express()
+const bodyParser = require('body-parser')
+
+// const log = require('/.src/logging.js')
 
 const dbConfigs = require('./knexfile.js')
 const db = require('knex')(dbConfigs.development)
-
+const session = require('express-session')
 const port = 3000
 
 // -----------------------------------------------------------------------------
 // Express.js Endpoints
 
 const homepageTemplate = fs.readFileSync('./templates/homepage.mustache', 'utf8')
+const login = fs.readFileSync('./templates/login.mustache', 'utf8')
 
 app.use(express.urlencoded())
+app.use(bodyParser.urlencoded({extended: false}));
+
+app.use(session({ ... }))
 
 app.get('/', function (req, res) {
+
+      res.send(mustache.render(login))
+});
+
+app.get('/cohorts', function (req, res) {
   getAllCohorts()
     .then(function (allCohorts) {
       res.send(mustache.render(homepageTemplate, { cohortsListHTML: renderAllCohorts(allCohorts) }))
     })
+    // .catch(function(err){
+    //   res.send(err)
+    // })
 })
 
 // app.get('/', function (req, res) {
