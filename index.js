@@ -4,6 +4,7 @@ const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
 const passport = require('passport');
+const mongoose = require('mongoose');
 // const log = require('/.src/logging.js')
 
 const dbConfigs = require('./knexfile.js')
@@ -13,9 +14,23 @@ const port = 3000 || process.env.PORT;
 
 // -----------------------------------------------------------------------------
 // Express.js Endpoints
+mongoose.connect('mongodb://localhost/MyDatabase');
+
+const Schema = mongoose.Schema;
+const UserDetail = new Schema({
+  username: String,
+  password: String
+});
+
+const UserDetails = mongoose.model('userInfo', UserDetail, 'userInfo');
+
 
 app.use(passport.initialize());
 app.use(passport.session());
+
+app.use(bodyParser.urlencoded({ extended: true}));
+
+
 
 app.get('/success', (req, res) => res.send("You have successfully logged in"));
 app.get('/error', (req, res) => res.send('error logging in'));
