@@ -209,3 +209,29 @@ app.get('/auth/facebook',
     function(req, res){
       res.redirect('/sucess');
     });
+
+    // GITHUB AUTH
+
+    const GitHubStrategy = require('passport-github').Strategy;
+
+    const GITHUB_CLIENT_ID = 'Iv1.ccf3b6ce10929198';
+    const GITHUB_CLIENT_SECRET = 'e52b357794c9c26e2acac4affd15ed1d98bc3642';
+
+    passport.use(new GitHubStrategy({
+      clientID: GITHUB_CLIENT_ID,
+      clientSecret: GITHUB_CLIENT_SECRET,
+      callbackURL: '/auth/github/callback'
+    },
+      function(accessToken, refreshToken, profile, cb){
+        return cb(null, profile);
+      }
+    ));
+
+    app.get('/auth/github',
+      passport.authenticate('github'));
+
+    app.get('/auth/github/callback',
+      passport.authenticate('github', { failureRedirect: '/error'}),
+      function(req, res){
+        res.redirect('/success');
+    });
