@@ -5,6 +5,7 @@ const app = express()
 const bodyParser = require('body-parser')
 const passport = require('passport');
 const mongoose = require('mongoose');
+const session = require('express-session')
 // const log = require('/.src/logging.js')
 
 const dbConfigs = require('./knexfile.js')
@@ -24,12 +25,12 @@ const UserDetail = new Schema({
 
 const UserDetails = mongoose.model('userInfo', UserDetail, 'userInfo');
 
-
+app.use(session({secret: 'ij3i2'}))
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use(bodyParser.urlencoded({ extended: true}));
 
+app.use(bodyParser.urlencoded({ extended: true}));
 
 
 app.get('/success', (req, res) => res.send("You have successfully logged in"));
@@ -57,6 +58,7 @@ app.get('/', (req, res) => res.sendFile('auth.html', {root: __dirname}));
 
 
 app.get('/cohorts', function (req, res) {
+  console.log(req.sessionID)
   getAllCohorts()
     .then(function (allCohorts) {
       res.send(mustache.render(homepageTemplate, { cohortsListHTML: renderAllCohorts(allCohorts) }))
@@ -76,7 +78,7 @@ app.get('/cohorts', function (req, res) {
 app.post('/cohorts', function (req, res) {
   createCohort(req.body)
     .then(function () {
-      res.send('hopefully we created your cohort <a href="/">go home</a>')
+      res.send('hopefully we created your cohort <a href="/cohorts">go home</a>')
     })
     .catch(function () {
       res.status(500).send('something went wrong. waaah, waaah')
@@ -222,7 +224,7 @@ app.get('/auth/facebook',
   app.get('/auth/facebook/callback',
     passport.authenticate('facebook', { failureRedirect: '/error'}),
     function(req, res){
-      res.redirect('/sucess');
+      res.redirect('/cohorts');
     });
 
     // GITHUB AUTH
@@ -248,7 +250,7 @@ app.get('/auth/facebook',
     app.get('/auth/github/callback',
       passport.authenticate('github', { failureRedirect: '/error'}),
       function(req, res){
-        res.redirect('/success');
+        res.redirect('/cohorts');
     });
 
     // PASSPORT LOCAL AUTHENTICATION
@@ -279,5 +281,11 @@ app.get('/auth/facebook',
     app.post('/',
       passport.authenticate('local', { failureRedirect: '/error'}),
       function(req, res){
-        res.redirect('/success?username='+req.user.username);
+        res.redirect('/cohorts');
+      });
+
+      //logout
+
+      app.get('/logout', function (req, res) {
+        req.session.destroy(() => res.redirect('/'));
       });
